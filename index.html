@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard App</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+    h1, h2 { text-align: center; }
+    #cards-container {
+      display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;
+    }
+    .card {
+      width: 200px; height: 100px; padding: 10px;
+      background-color: white; border: 1px solid #ccc;
+      border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .card-front { font-weight: bold; font-size: 1.2em; }
+    .card-back { color: #555; }
+    
+    /* CSS MỚI CHO AI CHAT */
+    #ai-section {
+      max-width: 600px; margin: 30px auto; padding: 20px;
+      background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    #ai-prompt { width: calc(100% - 100px); padding: 10px; border-radius: 4px; border: 1px solid #ccc; }
+    #ask-button { padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    #ai-answer { margin-top: 15px; background-color: #f9f9f9; padding: 10px; border-radius: 4px; min-height: 50px; }
+  </style>
+</head>
+<body>
+
+  <h1>Bộ thẻ của tôi</h1>
+  <div id="cards-container">
+    </div>
+
+  <div id="ai-section">
+    <h2>Trợ lý AI</h2>
+    <input type="text" id="ai-prompt" placeholder="Hỏi AI bất cứ điều gì...">
+    <button id="ask-button">Gửi</button>
+    <div id="ai-answer">Câu trả lời của AI sẽ xuất hiện ở đây...</div>
+  </div>
+
+  <script>
+    // --- PHẦN 1: TẢI CÁC THẺ (GIỮ NGUYÊN) ---
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('http://localhost:3000/api/cards')
+        .then(response => response.json())
+        .then(cards => {
+          console.log('Đã nhận được dữ liệu:', cards);
+          const container = document.getElementById('cards-container');
+          
+          cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.innerHTML = `
+              <div class="card-front">${card.front_text}</div>
+              <div class="card-back">${card.back_text}</div>
+            `;
+            container.appendChild(cardElement);
+          });
+        })
+        .catch(error => {
+          console.error('Lỗi khi gọi API:', error);
+          const container = document.getElementById('cards-container');
+          container.innerHTML = 'Không thể tải thẻ. Bạn đã chạy server "node index.js" chưa?';
+        });
+
+      // --- PHẦN 2: LOGIC MỚI CHO AI ---
+      const askButton = document.getElementById('ask-button');
+      const aiPromptInput = document.getElementById('ai-prompt');
+      const aiAnswerDiv = document.getElementById('ai-answer');
+
+      // Khi người dùng bấm nút "Gửi"
+      askButton.addEventListener('click', () => {
+        const prompt = aiPromptInput.value; // Lấy câu hỏi
+        if (!prompt) {
+          alert('Vui lòng nhập câu hỏi!');
+          return;
+        }
+
+        aiAnswerDiv.textContent = 'AI đang suy nghĩ...'; // Thông báo chờ
+
+        // Gửi câu hỏi đến Backend (API /api/ask-ai)
+        fetch('http://localhost:3000/api/ask-ai', {
+          method: 'POST', // Dùng POST vì chúng ta "gửi" dữ liệu
+          headers: {
+            'Content-Type': 'application/json' // Báo cho server biết ta gửi JSON
+          },
+          body: JSON.stringify({ prompt: prompt }) // Biến JS object thành chuỗi JSON
+        })
+        .then(response => response.json())
+        .then(data => {
+          // data bây giờ là { answer: "Câu trả lời của AI..." }
+          aiAnswerDiv.textContent = data.answer; // Hiển thị câu trả lời
+        })
+        .catch(error => {
+          console.error('Lỗi khi gọi API AI:', error);
+          aiAnswerDiv.textContent = 'Có lỗi xảy ra. Vui lòng thử lại.';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
