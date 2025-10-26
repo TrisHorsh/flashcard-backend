@@ -18,10 +18,10 @@ app.use(express.json()); // **RẤT QUAN TRỌNG**: Cho phép Express đọc JSO
 
 // Cấu hình kết nối MySQL
 const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'flashcard_db'
+  host: 'sql209.infinityfree.com' || 'localhost',
+  user: 'if0_40171234' ||  'root',
+  password: 'Qs5obarGg0u' || '',
+  database: 'if0_40171234_flashcard_db' || 'flashcard_db'
 });
 
 // --- CẤU HÌNH GOOGLE AI ---
