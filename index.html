@@ -44,7 +44,7 @@
   <script>
     // --- PHẦN 1: TẢI CÁC THẺ (GIỮ NGUYÊN) ---
     document.addEventListener('DOMContentLoaded', () => {
-      fetch('http://localhost:3000/api/cards')
+      fetch('https://my-flashcard-backend.onrender.com/api/cards')
         .then(response => response.json())
         .then(cards => {
           console.log('Đã nhận được dữ liệu:', cards);
@@ -82,7 +82,7 @@
         aiAnswerDiv.textContent = 'AI đang suy nghĩ...'; // Thông báo chờ
 
         // Gửi câu hỏi đến Backend (API /api/ask-ai)
-        fetch('http://localhost:3000/api/ask-ai', {
+        fetch('https://my-flashcard-backend.onrender.com/api/ask-ai', {
           method: 'POST', // Dùng POST vì chúng ta "gửi" dữ liệu
           headers: {
             'Content-Type': 'application/json' // Báo cho server biết ta gửi JSON
